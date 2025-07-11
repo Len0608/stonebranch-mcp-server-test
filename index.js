@@ -44,27 +44,76 @@ class StoneBranchMCPServer {
       );
     }
 
-    try {
-      const response = await axios.post(
-        `${this.baseUrl}/uc/resources/user/ops-login`,
-        {
-          username: this.username,
-          password: this.password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          httpsAgent: new (await import("https")).Agent({
-            rejectUnauthorized: false,
-          }),
-        }
-      );
+    // Try token-based authentication first
+    if (await this.tryTokenAuthentication()) {
+      return true;
+    }
 
-      this.token = response.data.token;
+    // Fall back to Basic Authentication
+    return await this.tryBasicAuthentication();
+  }
+
+  async tryTokenAuthentication() {
+
+    try {
+      // Try different authentication endpoints for UC 7.8
+      const authEndpoints = [
+        '/uc/resources/user/ops-login',
+        '/uc/resources/user/login',
+        '/uc/api/login',
+        '/uc/login'
+      ];
+      
+      let authResponse = null;
+      let authError = null;
+      
+      for (const endpoint of authEndpoints) {
+        try {
+          console.log(`Trying auth endpoint: ${this.baseUrl}${endpoint}`);
+          authResponse = await axios.post(
+            `${this.baseUrl}${endpoint}`,
+            {
+              username: this.username,
+              password: this.password,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              httpsAgent: new (await import("https")).Agent({
+                rejectUnauthorized: false,
+              }),
+            }
+          );
+          
+          if (authResponse && authResponse.data && authResponse.data.token) {
+            this.token = authResponse.data.token;
+            console.log(`Authentication successful with endpoint: ${endpoint}`);
+            break;
+          }
+        } catch (error) {
+          authError = error;
+          console.log(`Auth failed for ${endpoint}: ${error.message}`);
+          continue;
+        }
+      }
+      
+      if (!this.token) {
+        throw new Error(`All authentication endpoints failed. Last error: ${authError?.message}`);
+      }
+      
+      // Try different API base paths for UC 7.8
+      const apiBasePaths = [
+        '/uc/resources',
+        '/uc/api',
+        '/api'
+      ];
+      
+      // Use the first available API base path
+      let apiBasePath = apiBasePaths[0];
       
       this.apiClient = axios.create({
-        baseURL: `${this.baseUrl}/uc/resources`,
+        baseURL: `${this.baseUrl}${apiBasePath}`,
         headers: {
           "Authorization": `Bearer ${this.token}`,
           "Content-Type": "application/json",
@@ -76,9 +125,37 @@ class StoneBranchMCPServer {
 
       return true;
     } catch (error) {
+      console.log(`Token authentication failed: ${error.message}`);
+      return false;
+    }
+  }
+
+  async tryBasicAuthentication() {
+    try {
+      console.log("Trying Basic Authentication...");
+      
+      const authString = Buffer.from(`${this.username}:${this.password}`).toString('base64');
+      
+      this.apiClient = axios.create({
+        baseURL: `${this.baseUrl}/uc/resources`,
+        headers: {
+          "Authorization": `Basic ${authString}`,
+          "Content-Type": "application/json",
+        },
+        httpsAgent: new (await import("https")).Agent({
+          rejectUnauthorized: false,
+        }),
+      });
+
+      // Test the authentication with a simple request
+      const testResponse = await this.apiClient.get('/task?limit=1');
+      console.log("Basic authentication successful");
+      return true;
+      
+    } catch (error) {
       throw new McpError(
         ErrorCode.InternalError,
-        `Authentication failed: ${error.message}`
+        `All authentication methods failed: ${error.message}`
       );
     }
   }

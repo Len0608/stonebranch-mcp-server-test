@@ -11,7 +11,8 @@
     "http-dev": "node --watch http-server.js",
     "test-mcp": "node test-client.js",
     "test-http": "node test-http.js",
-    "inspector": "npx @modelcontextprotocol/inspector node index.js"
+    "inspector": "npx @modelcontextprotocol/inspector node index.js",
+    "mock-server": "node mock-server.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
