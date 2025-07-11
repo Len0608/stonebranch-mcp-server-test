@@ -8,7 +8,10 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "http-server": "node http-server.js",
-    "http-dev": "node --watch http-server.js"
+    "http-dev": "node --watch http-server.js",
+    "test-mcp": "node test-client.js",
+    "test-http": "node test-http.js",
+    "inspector": "npx @modelcontextprotocol/inspector node index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
