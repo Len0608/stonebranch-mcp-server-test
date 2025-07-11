@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude + Stonebranch Integration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .api-test {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .result {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Claude + Stonebranch Integration</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instructions for Claude (Browser)</h3>
+            <p>Hi Claude! This page provides access to a Stonebranch Universal Controller API. Here are the available endpoints:</p>
+            <ul>
+                <li><strong>Health Check:</strong> GET /health</li>
+                <li><strong>API Documentation:</strong> GET /api/docs</li>
+                <li><strong>Task Instances:</strong> GET /api/task-instances?taskname=TaskName</li>
+                <li><strong>Universal Agents:</strong> GET /api/agents?agentname=AgentName</li>
+                <li><strong>Tasks:</strong> GET /api/tasks?taskname=TaskName</li>
+            </ul>
+            <p><strong>Note:</strong> The Stonebranch API requires specific taskname/agentname parameters. Use the test buttons below to see the API responses.</p>
+        </div>
+
+        <div class="api-test">
+            <h3>🔧 API Test Tools</h3>
+            <p>Test the Stonebranch API endpoints:</p>
+            
+            <button onclick="testEndpoint('/health')">Test Health Check</button>
+            <button onclick="testEndpoint('/api/docs')">Test API Documentation</button>
+            <button onclick="testEndpoint('/api/task-instances')">Test Task Instances</button>
+            <button onclick="testEndpoint('/api/agents')">Test Agents</button>
+            <button onclick="testEndpoint('/api/tasks')">Test Tasks</button>
+            
+            <div id="results"></div>
+        </div>
+
+        <div class="api-test">
+            <h3>💬 How to Use with Claude</h3>
+            <p>Copy and paste this into your Claude conversation:</p>
+            <div class="endpoint">
+                "I have access to a Stonebranch Universal Controller API at http://localhost:3001. 
+                Can you help me test the API endpoints? The available endpoints are:
+                - GET /health (health check)
+                - GET /api/docs (API documentation)  
+                - GET /api/task-instances?taskname=TaskName (requires taskname parameter)
+                - GET /api/agents?agentname=AgentName (requires agentname parameter)
+                - GET /api/tasks?taskname=TaskName (requires taskname parameter)
+                
+                Please help me understand what data is available and how to query specific tasks or agents."
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint(endpoint) {
+            const resultsDiv = document.getElementById('results');
+            const url = `http://localhost:3001${endpoint}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">
+                        <strong>GET ${endpoint}</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error testing ${endpoint}:</strong><br>
+                        ${error.message}<br>
+                        <em>Make sure your HTTP server is running on localhost:3001</em>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "Stonebranch List Tasks": {
+    "prefix": "sb-list-tasks",
+    "body": [
+      "// List Stonebranch Tasks",
+      "const result = await mcpClient.callTool('list_tasks', {});",
+      "console.log('Tasks:', result.content[0].text);"
+    ],
+    "description": "List Stonebranch task definitions"
+  },
+  "Stonebranch List Agents": {
+    "prefix": "sb-list-agents",
+    "body": [
+      "// List Universal Agents",
+      "const result = await mcpClient.callTool('list_universal_agents', {});",
+      "console.log('Agents:', result.content[0].text);"
+    ],
+    "description": "List Stonebranch universal agents"
+  },
+  "Stonebranch Get Task Instance": {
+    "prefix": "sb-get-task-instance",
+    "body": [
+      "// Get Task Instance",
+      "const result = await mcpClient.callTool('get_task_instance', {",
+      "    taskInstanceId: '${1:task-id}'",
+      "});",
+      "console.log('Task Instance:', result.content[0].text);"
+    ],
+    "description": "Get specific task instance details"
+  }
+}

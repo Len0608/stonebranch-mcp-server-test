@@ -28,26 +28,14 @@ class StoneBranchHTTPServer {
     }
 
     try {
-      const response = await axios.post(
-        `${this.baseUrl}/uc/resources/user/ops-login`,
-        {
-          username: this.username,
-          password: this.password,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-          httpsAgent: new (await import("https")).Agent({
-            rejectUnauthorized: false,
-          }),
-        }
-      );
-
-      this.token = response.data.token;
+      console.log("Using Basic Authentication for HTTP server...");
+      
+      const authString = Buffer.from(`${this.username}:${this.password}`).toString('base64');
       
       this.apiClient = axios.create({
-        baseURL: `${this.baseUrl}/uc/resources`,
+        baseURL: `${this.baseUrl}/resources`,
         headers: {
-          "Authorization": `Bearer ${this.token}`,
+          "Authorization": `Basic ${authString}`,
           "Content-Type": "application/json",
         },
         httpsAgent: new (await import("https")).Agent({
@@ -55,7 +43,11 @@ class StoneBranchHTTPServer {
         }),
       });
 
+      // Test the authentication with a simple request
+      const testResponse = await this.apiClient.get('/task?taskname=test&limit=1');
+      console.log("Basic authentication successful for HTTP server");
       return true;
+      
     } catch (error) {
       throw new Error(`Authentication failed: ${error.message}`);
     }
