@@ -58,10 +58,10 @@ class StoneBranchMCPServer {
     try {
       // Try different authentication endpoints for UC 7.8
       const authEndpoints = [
-        '/uc/resources/user/ops-login',
-        '/uc/resources/user/login',
-        '/uc/api/login',
-        '/uc/login'
+        '/resources/user/ops-login',
+        '/resources/user/login',
+        '/api/login',
+        '/login'
       ];
       
       let authResponse = null;
@@ -104,8 +104,7 @@ class StoneBranchMCPServer {
       
       // Try different API base paths for UC 7.8
       const apiBasePaths = [
-        '/uc/resources',
-        '/uc/api',
+        '/resources',
         '/api'
       ];
       
@@ -137,7 +136,7 @@ class StoneBranchMCPServer {
       const authString = Buffer.from(`${this.username}:${this.password}`).toString('base64');
       
       this.apiClient = axios.create({
-        baseURL: `${this.baseUrl}/uc/resources`,
+        baseURL: `${this.baseUrl}/resources`,
         headers: {
           "Authorization": `Basic ${authString}`,
           "Content-Type": "application/json",
@@ -198,10 +197,19 @@ class StoneBranchMCPServer {
     await this.ensureAuthenticated();
     
     try {
+      // UC API requires specific taskname or taskid - cannot list all
+      if (!criteria.taskname && !criteria.taskid) {
+        return {
+          message: "Universal Controller API requires either 'taskname' or 'taskid' parameter to retrieve task instances. Cannot list all task instances without specific criteria.",
+          example: "Use criteria like: { taskname: 'MyTask' } or { taskid: '12345' }"
+        };
+      }
+      
       const params = new URLSearchParams();
       
       if (criteria.status) params.append('status', criteria.status);
       if (criteria.taskname) params.append('taskname', criteria.taskname);
+      if (criteria.taskid) params.append('taskid', criteria.taskid);
       if (criteria.workflowInstanceId) params.append('workflowInstanceId', criteria.workflowInstanceId);
       if (criteria.limit) params.append('limit', criteria.limit);
       if (criteria.offset) params.append('offset', criteria.offset);
@@ -211,7 +219,7 @@ class StoneBranchMCPServer {
     } catch (error) {
       throw new McpError(
         ErrorCode.InternalError,
-        `Failed to list task instances: ${error.message}`
+        `Failed to get task instances: ${error.message}`
       );
     }
   }
@@ -248,9 +256,18 @@ class StoneBranchMCPServer {
     await this.ensureAuthenticated();
     
     try {
+      // UC API requires specific taskname or taskid - cannot list all
+      if (!criteria.taskname && !criteria.taskid) {
+        return {
+          message: "Universal Controller API requires either 'taskname' or 'taskid' parameter to retrieve tasks. Cannot list all tasks without specific criteria.",
+          example: "Use criteria like: { taskname: 'MyTask' } or { taskid: '12345' }"
+        };
+      }
+      
       const params = new URLSearchParams();
       
-      if (criteria.name) params.append('name', criteria.name);
+      if (criteria.taskname) params.append('taskname', criteria.taskname);
+      if (criteria.taskid) params.append('taskid', criteria.taskid);
       if (criteria.type) params.append('type', criteria.type);
       if (criteria.status) params.append('status', criteria.status);
       if (criteria.agent) params.append('agent', criteria.agent);
@@ -262,7 +279,7 @@ class StoneBranchMCPServer {
     } catch (error) {
       throw new McpError(
         ErrorCode.InternalError,
-        `Failed to list tasks: ${error.message}`
+        `Failed to get tasks: ${error.message}`
       );
     }
   }
@@ -285,9 +302,18 @@ class StoneBranchMCPServer {
     await this.ensureAuthenticated();
     
     try {
+      // UC API requires specific agentname or agentid - cannot list all
+      if (!criteria.agentname && !criteria.agentid) {
+        return {
+          message: "Universal Controller API requires either 'agentname' or 'agentid' parameter to retrieve agents. Cannot list all agents without specific criteria.",
+          example: "Use criteria like: { agentname: 'MyAgent' } or { agentid: '12345' }"
+        };
+      }
+      
       const params = new URLSearchParams();
       
-      if (criteria.name) params.append('name', criteria.name);
+      if (criteria.agentname) params.append('agentname', criteria.agentname);
+      if (criteria.agentid) params.append('agentid', criteria.agentid);
       if (criteria.status) params.append('status', criteria.status);
       if (criteria.type) params.append('type', criteria.type);
       if (criteria.limit) params.append('limit', criteria.limit);
@@ -298,7 +324,7 @@ class StoneBranchMCPServer {
     } catch (error) {
       throw new McpError(
         ErrorCode.InternalError,
-        `Failed to list universal agents: ${error.message}`
+        `Failed to get universal agents: ${error.message}`
       );
     }
   }
