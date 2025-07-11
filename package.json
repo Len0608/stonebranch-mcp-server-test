@@ -1,0 +1,32 @@
+{
+  "name": "stonebranch-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Stonebranch Universal Controller integration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "http-server": "node http-server.js",
+    "http-dev": "node --watch http-server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "stonebranch",
+    "universal-controller",
+    "mcp",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT"
+}

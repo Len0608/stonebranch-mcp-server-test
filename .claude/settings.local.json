@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:stonebranchdocs.atlassian.net)"
+    ],
+    "deny": []
+  }
+}
